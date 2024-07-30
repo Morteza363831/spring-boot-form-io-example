@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Form</title>
+    <link rel="stylesheet" href="https://cdn.form.io/formiojs/formio.full.min.css">
+    <script src="https://cdn.form.io/formiojs/formio.full.min.js"></script>
+</head>
+<body>
+<h1>Form</h1>
+<div id="formio"></div>
+<script>
+    Formio.createForm(document.getElementById('formio'), {
+        components: [
+            {
+                type: 'textfield',
+                label: 'Name',
+                key: 'name',
+                placeholder: 'Enter your name',
+                validate: {
+                    required: true,
+                    minLength: 2,
+                    maxLength: 20
+                },
+                input: true
+            },
+            {
+                type: 'password',
+                label: 'Password',
+                key: 'password',
+                placeholder: 'Enter your password',
+                validate: {
+                    required: true,
+                    minLength: 2,
+                    maxLength: 100
+                },
+                input: true
+            },
+            {
+                type: 'button',
+                action: 'submit',
+                label: 'Submit',
+                theme: 'primary'
+            }
+        ]
+    }).then(function(form) {
+        form.on('submit', function(submission) {
+            const formData = {
+                name: submission.data.name,
+                password: submission.data.password
+            };
+            fetch('/api/forms/form/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            }).then(response => {
+                if(response.ok) {
+                  window.location.href = "redirect:/api/forms/form"
+                } else {
+                    alert("issue")
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
