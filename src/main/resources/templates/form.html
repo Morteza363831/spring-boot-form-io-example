@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Form</title>
+    <link rel="stylesheet" href="https://cdn.form.io/formiojs/formio.full.min.css">
+    <script src="https://cdn.form.io/formiojs/formio.full.min.js"></script>
+</head>
+<body>
+<h1>Form</h1>
+<div id="formio"></div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var formDefinition = /*[[${formDefinition}]]*/ '{}';
+    try {
+        // Ensure formDefinition is a valid JSON object
+        var parsedDefinition = JSON.parse(formDefinition);
+        Formio.createForm(document.getElementById('formio'), parsedDefinition).then(function(form) {
+            form.on('submit', function(submission) {
+                const formData = {
+                    name: submission.data.name,
+                    password: submission.data.password
+                };
+                fetch('/api/forms/form/complete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                }).then(response => {
+                    console.log(response.statusText)
+                    if(response.ok) {
+                        response.json().then(data => {
+                            window.location.href = '/api/forms/result' +
+                                '?name=' + data.name + "&password=" + data.password;
+                        });
+                    } else {
+                        alert("rest form issue")
+                    }
+                });
+            });
+        });
+    } catch (e) {
+        console.error('Error parsing form definition:', e);
+        alert('Error loading form.');
+    }
+    /*]]>*/
+</script>
+</body>
+</html>
