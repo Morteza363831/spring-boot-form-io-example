@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Form Submission Result</h1>
+<p id="result"></p>
+<script>
+    // Get the query parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('name');
+    const password = urlParams.get("password")
+
+    // Display the submitted name
+    document.getElementById('result').innerText = 'Submitted Name: ' + name + " Submitted Pass : " + password;
+</script>
+</body>
+</html>
