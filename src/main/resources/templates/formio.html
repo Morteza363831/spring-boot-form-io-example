@@ -43,6 +43,7 @@
             }
         ]
     }).then(function(form) {
+
         form.on('submit', function(submission) {
             const formData = {
                 name: submission.data.name,
@@ -55,10 +56,15 @@
                 },
                 body: JSON.stringify(formData)
             }).then(response => {
+                console.log(response.statusText)
                 if(response.ok) {
-                  window.location.href = "redirect:/api/forms/form"
+                    response.json().then(data => {
+                        window.location.href = '/api/forms/result' +
+                            '?name=' + data.name + "&password=" + data.password;
+                        console.log("here io")
+                    });
                 } else {
-                    alert("issue")
+                    alert("static form issue")
                 }
             });
         });
