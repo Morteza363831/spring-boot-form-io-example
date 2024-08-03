@@ -4,14 +4,19 @@ import ch.qos.logback.classic.Logger;
 import jakarta.servlet.http.HttpSession;
 import org.camunda.bpm.getstarted.springbootformioexample.service.FormService;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -19,6 +24,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/forms")
 public class FormController {
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(FormController.class);
 
@@ -28,6 +36,20 @@ public class FormController {
     public FormController(FormService formService, ResourceLoader resourceLoader) {
         this.formService = formService;
         this.resourceLoader = resourceLoader;
+    }
+
+    @GetMapping("/file")
+    public ResponseEntity<Resource> file() {
+        String RESOURCE = "classpath:templates/file.html";
+        Resource resource = resourceLoader.getResource(RESOURCE);
+        if (resource.exists()) {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE,"text/html")
+                    .body(resource);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/rest/form")
@@ -90,5 +112,55 @@ public class FormController {
         }
     }
 
+
+    @GetMapping("/user/form")
+    public ResponseEntity<Resource> userForm() {
+        String RESOURCE = "classpath:templates/userForm.html";
+        Resource resource = resourceLoader.getResource(RESOURCE);
+        if (resource.exists()) {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE,"text/html")
+                    .body(resource);
+        }
+        return ResponseEntity.notFound().build();
+    }
+    @PostMapping("/user/form/complete")
+    public ResponseEntity<Map<String,Object>> completeUserForm(@RequestBody Map<String, Object> formData, HttpSession session) {
+        String url = "http://localhost:8090/submit-form";
+
+        // Create headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
+        // Create the HttpEntity with form data and headers
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
+
+        // Make a POST request to the first project's /submit-form endpoint
+        ResponseEntity<Map> responseEntity = restTemplate.postForEntity(url, requestEntity, Map.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            Map<String, Object> updatedData = responseEntity.getBody();
+            return ResponseEntity.ok(updatedData);
+        } else {
+            return ResponseEntity.status(responseEntity.getStatusCode()).body(null);
+        }
+    }
+
+
+    @GetMapping("/user/display")
+    public ResponseEntity<Resource> displayUser(@RequestParam String userName, @RequestParam Integer userAge, @RequestParam String userJob) {
+
+        String RESOURCE = "classpath:templates/displayUser.html";
+        Resource resource = resourceLoader.getResource(RESOURCE);
+
+        if (resource.exists()) {
+            System.out.println(userName);
+            // Replace placeholders in the HTML template with actual data
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, "text/html")
+                    .body(resource);
+        }
+        return ResponseEntity.notFound().build();
+    }
 
 }
