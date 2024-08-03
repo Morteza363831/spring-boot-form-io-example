@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/formiojs@latest/dist/formio.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/formiojs@latest/dist/formio.full.min.js"></script>
+</head>
+<body>
+<h1>Form</h1>
+<div id="formio"></div>
+<script>
+    Formio.createForm(document.getElementById('formio'), {
+        components: [
+            {
+                label: "Name",
+                type: "textfield",
+                key: "userName",
+                input: true,
+                inputType: "text",
+                placeholder: "Enter user's name"
+            },
+            {
+                label: "Age",
+                type: "number",
+                key: "userAge",
+                input: true,
+                inputType: "number",
+                placeholder: "Enter user's age"
+            },
+            {
+                label: "Job",
+                type: "textfield",
+                key: "userJob",
+                input: true,
+                inputType: "text",
+                placeholder: "Enter user's job"
+            }
+        ]
+    }).then(function(form) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userName = urlParams.get('userName');
+        const userAge = urlParams.get("userAge");
+        const userJob = urlParams.get("userJob");
+
+        // Set the values in the form
+        form.submission = {
+            data: {
+                userName: userName,
+                userAge: userAge,
+                userJob: userJob
+            }
+        };
+    });
+</script>
+</body>
+</html>
