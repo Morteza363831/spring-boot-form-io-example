@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/formiojs@latest/dist/formio.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/formiojs@latest/dist/formio.full.min.js"></script>
+</head>
+<body>
+<h1>Form</h1>
+<div id="formio"></div>
+<script>
+    Formio.createForm(document.getElementById('formio'), {
+        display: 'form',
+        components: [
+            {
+                label: 'Name',
+                type: 'textfield',
+                key: 'userName',
+                input: true,
+                inputType: 'text',
+                placeholder: 'Enter user\'s name'
+            },
+            {
+                label: 'Age',
+                type: 'number',
+                key: 'userAge',
+                input: true,
+                inputType: 'number',
+                placeholder: 'Enter user\'s age'
+            },
+            {
+                label: 'Job',
+                type: 'textfield',
+                key: 'userJob',
+                input: true,
+                inputType: 'text',
+                placeholder: 'Enter user\'s job'
+            },
+            {
+                type: 'button',
+                action: 'submit',
+                label: 'Submit',
+                theme: 'primary'
+            }
+        ]
+    }).then(function(form) {
+        form.on('submit', function(submission) {
+            const formData = {
+                name: submission.data.userName,
+                age: submission.data.userAge,
+                job: submission.data.userJob
+            };
+            fetch('/api/forms/user/form/complete', { // URL to the first project's endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            }).then(response => {
+                if(response.ok) {
+                    response.json().then(data => {
+                        // Redirect to display user form with new data
+                        window.location.href = 'http://localhost:8081/api/forms/user/display' +
+                            '?userName=' + data.userName +
+                            '&userAge=' + data.userAge +
+                            '&userJob=' + data.userJob;
+                    });
+                } else {
+                    alert("Error submitting form");
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while submitting the form.");
+            });
+        });
+    });
+</script>
+</body>
+</html>
