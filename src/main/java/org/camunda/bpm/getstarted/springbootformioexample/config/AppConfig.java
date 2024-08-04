@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class AppConfig {
 
+    // rest template (rest client to transfer data between endpoints)
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
